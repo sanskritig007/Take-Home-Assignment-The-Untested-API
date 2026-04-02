@@ -58,4 +58,75 @@ describe('Task Service', () => {
       expect(page2[0].title).toBe('Task 10');
     });
   });
+
+  describe('findById', () => {
+    it('finds a task by id', () => {
+      const created = taskService.create({ title: 'Lookup Task' });
+      const found = taskService.findById(created.id);
+
+      expect(found).toBeDefined();
+      expect(found.id).toBe(created.id);
+    });
+
+    it('returns undefined for unknown id', () => {
+      expect(taskService.findById('missing-id')).toBeUndefined();
+    });
+  });
+
+  describe('update', () => {
+    it('updates selected fields on an existing task', () => {
+      const created = taskService.create({ title: 'Old Title', priority: 'high' });
+      const updated = taskService.update(created.id, { title: 'New Title' });
+
+      expect(updated.title).toBe('New Title');
+      expect(updated.priority).toBe('high');
+    });
+
+    it('returns null for unknown id', () => {
+      const updated = taskService.update('missing-id', { title: 'Nope' });
+      expect(updated).toBeNull();
+    });
+  });
+
+  describe('remove', () => {
+    it('removes an existing task', () => {
+      const created = taskService.create({ title: 'Delete Me' });
+      const removed = taskService.remove(created.id);
+
+      expect(removed).toBe(true);
+      expect(taskService.findById(created.id)).toBeUndefined();
+    });
+
+    it('returns false for unknown id', () => {
+      expect(taskService.remove('missing-id')).toBe(false);
+    });
+  });
+
+  describe('completeTask', () => {
+    it('marks task as done and sets completion time', () => {
+      const created = taskService.create({ title: 'Complete Me' });
+      const completed = taskService.completeTask(created.id);
+
+      expect(completed.status).toBe('done');
+      expect(completed.completedAt).not.toBeNull();
+    });
+
+    it('returns null for unknown id', () => {
+      expect(taskService.completeTask('missing-id')).toBeNull();
+    });
+  });
+
+  describe('getStats', () => {
+    it('returns status totals and overdue count', () => {
+      taskService.create({ title: 'Todo Overdue', status: 'todo', dueDate: '2020-01-01T00:00:00Z' });
+      taskService.create({ title: 'Done Old', status: 'done', dueDate: '2020-01-01T00:00:00Z' });
+      taskService.create({ title: 'In Progress', status: 'in_progress', dueDate: '2050-01-01T00:00:00Z' });
+
+      const stats = taskService.getStats();
+      expect(stats.todo).toBe(1);
+      expect(stats.done).toBe(1);
+      expect(stats.in_progress).toBe(1);
+      expect(stats.overdue).toBe(1);
+    });
+  });
 });
