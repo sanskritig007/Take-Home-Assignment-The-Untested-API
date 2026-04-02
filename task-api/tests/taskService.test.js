@@ -35,4 +35,27 @@ describe('Task Service', () => {
       expect(partialMatches).toHaveLength(0);
     });
   });
+
+  describe('getPaginated', () => {
+    it('returns first page from the beginning of the list', () => {
+      for (let i = 0; i < 15; i++) {
+        taskService.create({ title: `Task ${i}` });
+      }
+
+      const page1 = taskService.getPaginated(1, 10);
+      expect(page1).toHaveLength(10);
+      expect(page1[0].title).toBe('Task 0');
+      expect(page1[9].title).toBe('Task 9');
+    });
+
+    it('returns remaining records on second page', () => {
+      for (let i = 0; i < 15; i++) {
+        taskService.create({ title: `Task ${i}` });
+      }
+
+      const page2 = taskService.getPaginated(2, 10);
+      expect(page2).toHaveLength(5);
+      expect(page2[0].title).toBe('Task 10');
+    });
+  });
 });
