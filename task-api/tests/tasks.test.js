@@ -100,6 +100,56 @@ describe('Task API routes', () => {
     });
   });
 
+  describe('PATCH /tasks/:id/assign', () => {
+    it('sets the assignee on a task', async () => {
+      const task = taskService.create({ title: 'Task to Assign' });
+      const res = await request(app)
+        .patch(`/tasks/${task.id}/assign`)
+        .send({ assignee: 'Bob' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.assignee).toBe('Bob');
+    });
+
+    it('returns 400 when assignee is an empty string', async () => {
+      const task = taskService.create({ title: 'Task' });
+      const res = await request(app)
+        .patch(`/tasks/${task.id}/assign`)
+        .send({ assignee: '  ' });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBeDefined();
+    });
+
+    it('returns 400 when assignee is missing', async () => {
+      const task = taskService.create({ title: 'Task' });
+      const res = await request(app)
+        .patch(`/tasks/${task.id}/assign`)
+        .send({});
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBeDefined();
+    });
+
+    it('returns 400 when assignee is not a string', async () => {
+      const task = taskService.create({ title: 'Task' });
+      const res = await request(app)
+        .patch(`/tasks/${task.id}/assign`)
+        .send({ assignee: 123 });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBeDefined();
+    });
+
+    it('returns 404 for unknown task id', async () => {
+      const res = await request(app)
+        .patch('/tasks/missing-id/assign')
+        .send({ assignee: 'Bob' });
+
+      expect(res.status).toBe(404);
+    });
+  });
+
   describe('GET /tasks/stats', () => {
     it('returns stats summary', async () => {
       taskService.create({ title: 'A', status: 'todo' });
