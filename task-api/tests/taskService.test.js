@@ -111,8 +111,30 @@ describe('Task Service', () => {
       expect(completed.completedAt).not.toBeNull();
     });
 
+    it('preserves the original priority of the task', () => {
+      const created = taskService.create({ title: 'High Priority Task', priority: 'high' });
+      const completed = taskService.completeTask(created.id);
+
+      expect(completed.priority).toBe('high');
+    });
+
     it('returns null for unknown id', () => {
       expect(taskService.completeTask('missing-id')).toBeNull();
+    });
+  });
+
+  describe('assign', () => {
+    it('sets the assignee on an existing task', () => {
+      const created = taskService.create({ title: 'Assign Me' });
+      const updated = taskService.assign(created.id, 'Alice');
+
+      expect(updated.assignee).toBe('Alice');
+      expect(taskService.findById(created.id).assignee).toBe('Alice');
+    });
+
+    it('returns null for unknown id', () => {
+      const updated = taskService.assign('missing-id', 'Alice');
+      expect(updated).toBeNull();
     });
   });
 
