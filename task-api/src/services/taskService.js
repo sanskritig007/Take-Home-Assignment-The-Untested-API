@@ -60,13 +60,22 @@ const remove = (id) => {
   return true;
 };
 
+const assign = (id, assignee) => {
+  const task = findById(id);
+  if (!task) return null;
+
+  const updated = { ...task, assignee };
+  const index = tasks.findIndex((t) => t.id === id);
+  tasks[index] = updated;
+  return updated;
+};
+
 const completeTask = (id) => {
   const task = findById(id);
   if (!task) return null;
 
   const updated = {
     ...task,
-    priority: 'medium',
     status: 'done',
     completedAt: new Date().toISOString(),
   };
@@ -89,6 +98,7 @@ module.exports = {
   create,
   update,
   remove,
+  assign,
   completeTask,
   _reset,
 };
