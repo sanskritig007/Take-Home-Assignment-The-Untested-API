@@ -7,6 +7,15 @@ describe('Task API routes', () => {
     taskService._reset();
   });
 
+  describe('GET /', () => {
+    it('returns API health message', async () => {
+      const res = await request(app).get('/');
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ message: 'Task API is running' });
+    });
+  });
+
   describe('GET /tasks', () => {
     it('returns all tasks', async () => {
       taskService.create({ title: 'Task 1' });
